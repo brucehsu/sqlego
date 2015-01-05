@@ -9,15 +9,21 @@ const (
   CLAU_FROM
   LIST_COLS
   LIST_CONDS
-  NODE_COND
+  NODE_PRED
   NODE_AND
   NODE_OR
+  PRED_EQ
+  PRED_NEQ
+  PRED_GT
+  PRED_GTE
+  PRED_LT
+  PRED_LTE
 )
 
 type AST struct {
   Type uint
   Values []string
-  children []*AST
+  children []interface{}
 }
 
 type Statement struct {
@@ -28,4 +34,11 @@ type Statement struct {
 
 type Clause struct {
   AST
+}
+
+type Predicate struct {
+  AST
+  operator uint
+  first string
+  second string
 }
