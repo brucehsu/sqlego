@@ -13,23 +13,23 @@ func Select(table string, columns []string) (*Statement) {
   return node
 }
 
-func Insert(table string, columns []string, values []string) (*Statement) {
-  if len(columns) != len(values) {
-    panic("Values cannot be mapped to columns")
+func Insert(table string, values map[string]string) (*Statement) {
+  node := &Statement{table: table}
+  for k, v := range values {
+    node.columns = append(node.columns, k)
+    node.Values = append(node.Values, v)
   }
-  node := &Statement{table: table, columns: columns}
   node.Type = STMT_INSERT
-  node.Values = values
   return node
 }
 
-func Update(table string, columns []string, values []string) (*Statement) {
-  if len(columns) != len(values) {
-    panic("Values cannot be mapped to columns")
+func Update(table string, values map[string]string) (*Statement) {
+  node := &Statement{table: table}
+  for k, v := range values {
+    node.columns = append(node.columns, k)
+    node.Values = append(node.Values, v)
   }
-  node := &Statement{table: table, columns: columns}
   node.Type = STMT_UPDATE
-  node.Values = values
   return node
 }
 
