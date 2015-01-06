@@ -69,11 +69,13 @@ func Lte(operand string, operand_second string) *Predicate {
 	return newTernaryPredicate(operand, operand_second, PRED_LTE)
 }
 
-func (node *Statement) Where(pred *Predicate) *Statement {
+func (node *Statement) Where(preds ...*Predicate) *Statement {
 	where_clause := &Clause{}
 	where_clause.Type = CLAU_WHERE
 	node.children = append(node.children, where_clause)
-	where_clause.children = append(where_clause.children, pred)
+	for _, pred := range preds {
+		where_clause.children = append(where_clause.children, pred)
+	}
 	return node
 }
 
@@ -121,7 +123,6 @@ func compileWhere(children []interface{}) string {
 			clause := obj.(*Clause)
 			if clause.Type == CLAU_WHERE {
 				buffer.WriteString(" WHERE ")
-				// We only have 1 predicate for now
 				buffer.WriteString(compilePredicates(clause.children))
 			}
 		}
@@ -130,9 +131,8 @@ func compileWhere(children []interface{}) string {
 }
 
 func compilePredicates(children []interface{}) string {
-	// We assume given argument is a list of predicate nodes
 	var buffer bytes.Buffer
-	for _, node := range children {
+	for idx, node := range children {
 		pred := node.(*Predicate)
 		buffer.WriteString(pred.first)
 		switch pred.operator {
@@ -150,6 +150,10 @@ func compilePredicates(children []interface{}) string {
 			buffer.WriteString("<=")
 		}
 		buffer.WriteString(pred.second)
+		// We connect multiple predicates with AND keyword
+		if idx != len(children)-1 {
+			buffer.WriteString(" AND ")
+		}
 	}
 	return buffer.String()
 }
