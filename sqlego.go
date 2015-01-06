@@ -70,9 +70,20 @@ func Lte(operand string, operand_second string) *Predicate {
 }
 
 func (node *Statement) Where(preds ...*Predicate) *Statement {
-	where_clause := &Clause{}
-	where_clause.Type = CLAU_WHERE
-	node.children = append(node.children, where_clause)
+	var where_clause *Clause
+	for _, child := range node.children {
+		if reflect.TypeOf(child) == reflect.TypeOf(&Clause{}) {
+			if child.(*Clause).Type == CLAU_WHERE {
+				where_clause = child.(*Clause)
+				break
+			}
+		}
+	}
+	if where_clause == nil {
+		where_clause = &Clause{}
+		where_clause.Type = CLAU_WHERE
+		node.children = append(node.children, where_clause)
+	}
 	for _, pred := range preds {
 		where_clause.children = append(where_clause.children, pred)
 	}
