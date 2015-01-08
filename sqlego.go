@@ -78,13 +78,25 @@ func Lte(operand string, operand_second string) *Predicate {
 	return newTernaryPredicate(operand, operand_second, PRED_LTE)
 }
 
-// func (pred *Predicate) And(preds ...*Predicate) *Predicate {
-// 	return pred
-// }
+func (pred *Predicate) And(preds ...*Predicate) *Predicate {
+	and_pred := &Predicate{}
+	and_pred.Type = NODE_AND
+	for _, child := range preds {
+		and_pred.children = append(and_pred.children, child)
+	}
+	pred.children = append(pred.children, and_pred)
+	return pred
+}
 
-// func (pred *Predicate) Or(preds ...*Predicate) *Predicate {
-// 	return pred
-// }
+func (pred *Predicate) Or(preds ...*Predicate) *Predicate {
+	or_pred := &Predicate{}
+	or_pred.Type = NODE_OR
+	for _, child := range preds {
+		or_pred.children = append(or_pred.children, child)
+	}
+	pred.children = append(pred.children, or_pred)
+	return pred
+}
 
 func (node *Statement) Where(preds ...*Predicate) *Statement {
 	var where_clause *Clause
@@ -151,44 +163,65 @@ func compileWhere(children []interface{}) string {
 			clause := obj.(*Clause)
 			if clause.Type == CLAU_WHERE {
 				buffer.WriteString(" WHERE ")
-				buffer.WriteString(compileImplicitPredicates(clause.children))
+				buffer.WriteString(compileImplicitPredicates(clause.children, NODE_AND))
 			}
 		}
 	}
 	return buffer.String()
 }
 
-func compileImplicitPredicates(children []interface{}) string {
+func compileImplicitPredicates(children []interface{}, concat_mode uint) string {
 	var buffer bytes.Buffer
 	for idx, node := range children {
 		pred := node.(*Predicate)
+
+		if idx > 0 && pred.Type <= NODE_EXPPRED {
+			switch concat_mode {
+			case NODE_AND:
+				buffer.WriteString(" AND ")
+			case NODE_OR:
+				buffer.WriteString(" OR ")
+			}
+		}
+
 		switch pred.Type {
 		case NODE_EXPPRED:
 			buffer.WriteString(" ( ")
-			buffer.WriteString(compileImplicitPredicates(pred.children))
+			buffer.WriteString(compileImplicitPredicates(pred.children, NODE_AND))
 			buffer.WriteString(" ) ")
 		case NODE_PRED:
-			buffer.WriteString(pred.first)
-			switch pred.operator {
-			case PRED_EQ:
-				buffer.WriteString("=")
-			case PRED_NEQ:
-				buffer.WriteString("<>")
-			case PRED_GT:
-				buffer.WriteString(">")
-			case PRED_GTE:
-				buffer.WriteString(">=")
-			case PRED_LT:
-				buffer.WriteString("<")
-			case PRED_LTE:
-				buffer.WriteString("<=")
+			buffer.WriteString(compilePredicate(pred))
+			if len(pred.children) > 0 {
+				buffer.WriteString(compileImplicitPredicates(pred.children, NODE_AND))
 			}
-			buffer.WriteString(pred.second)
-			// We connect multiple predicates with AND keyword
-			if idx != len(children)-1 {
-				buffer.WriteString(" AND ")
-			}
+		case NODE_AND:
+			buffer.WriteString(" AND ")
+			buffer.WriteString(compileImplicitPredicates(pred.children, NODE_AND))
+		case NODE_OR:
+			buffer.WriteString(" OR ")
+			buffer.WriteString(compileImplicitPredicates(pred.children, NODE_OR))
 		}
 	}
+	return buffer.String()
+}
+
+func compilePredicate(pred *Predicate) string {
+	var buffer bytes.Buffer
+	buffer.WriteString(pred.first)
+	switch pred.operator {
+	case PRED_EQ:
+		buffer.WriteString("=")
+	case PRED_NEQ:
+		buffer.WriteString("<>")
+	case PRED_GT:
+		buffer.WriteString(">")
+	case PRED_GTE:
+		buffer.WriteString(">=")
+	case PRED_LT:
+		buffer.WriteString("<")
+	case PRED_LTE:
+		buffer.WriteString("<=")
+	}
+	buffer.WriteString(pred.second)
 	return buffer.String()
 }
