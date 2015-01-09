@@ -1,6 +1,7 @@
 sqlego
 ======
 [![Build Status](https://travis-ci.org/brucehsu/sqlego.svg?branch=master)](https://travis-ci.org/brucehsu/sqlego)
+[![License](https://img.shields.io/badge/license-MIT-green.svg?style=flat)](https://github.com/brucehsu/sqlego/blob/master/LICENSE)
 
 SQL query building interface for Go.
 
