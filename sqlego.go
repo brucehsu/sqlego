@@ -46,12 +46,15 @@ func newTernaryPredicate(operand string, operand_second string, operator uint) *
 }
 
 func ExplicitPredicates(preds ...*Predicate) *Predicate {
+	dummy_pred := &Predicate{}
+	dummy_pred.Type = NODE_PRED
 	exp_pred := &Predicate{}
 	exp_pred.Type = NODE_EXPPRED
 	for _, pred := range preds {
 		exp_pred.children = append(exp_pred.children, pred)
 	}
-	return exp_pred
+	dummy_pred.children = append(dummy_pred.children, exp_pred)
+	return dummy_pred
 }
 
 func Eq(operand string, operand_second string) *Predicate {
@@ -207,6 +210,9 @@ func compileImplicitPredicates(children []interface{}, concat_mode uint) string 
 
 func compilePredicate(pred *Predicate) string {
 	var buffer bytes.Buffer
+	if pred.first == "" {
+		return ""
+	}
 	buffer.WriteString(pred.first)
 	switch pred.operator {
 	case PRED_EQ:
