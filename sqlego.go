@@ -81,6 +81,10 @@ func Lte(operand string, operand_second string) *Predicate {
 	return newTernaryPredicate(operand, operand_second, PRED_LTE)
 }
 
+func Between(operand string, range_start string, range_end string) *Predicate {
+	return newTernaryPredicate(operand, fmt.Sprintf("%s AND %s", range_start, range_end), PRED_BETWEEN)
+}
+
 func (pred *Predicate) And(preds ...*Predicate) *Predicate {
 	and_pred := &Predicate{}
 	and_pred.Type = NODE_AND
@@ -227,6 +231,8 @@ func compilePredicate(pred *Predicate) string {
 		buffer.WriteString("<")
 	case PRED_LTE:
 		buffer.WriteString("<=")
+	case PRED_BETWEEN:
+		buffer.WriteString(" BETWEEN ")
 	}
 	buffer.WriteString(pred.second)
 	return buffer.String()

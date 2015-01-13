@@ -19,6 +19,7 @@ const (
 	PRED_GTE
 	PRED_LT
 	PRED_LTE
+	PRED_BETWEEN
 )
 
 type AST struct {

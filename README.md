@@ -64,6 +64,9 @@ func Lt(operand string, operand_second string) *Predicate // <
 ```go
 func Lte(operand string, operand_second string) *Predicate // <=
 ```
+```go
+func Between(operand string, range_start string, range_end string) *Predicate // BETWEEN range_start AND range_end
+```
 
 Concatenating conditions
 ```go
