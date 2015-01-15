@@ -52,6 +52,14 @@ func TestSelectStatementWithWhere(t *testing.T) {
 	if sql != "SELECT id,name,email FROM Users WHERE id>=10 OR id<5;" {
 		t.Fatalf("OR concatenation:\n%s", sql)
 	}
+
+	// Test explicit predicates with OR concatenation ambiguity in issue #1
+	node = Select("Users", []string{"id", "name", "email"})
+	node.Where(ExplicitPredicates(Gte("id", "10"), Lt("id", "20")).Or(Lt("id", "5")))
+	sql = node.Compile()
+	if sql != "SELECT id,name,email FROM Users WHERE  ( id>=10 AND id<20 )  OR id<5;" {
+		t.Fatalf("Explicit predicates ambiguity:\n%s", sql)
+	}
 }
 
 func TestInsertStatement(t *testing.T) {
