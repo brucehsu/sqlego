@@ -44,6 +44,14 @@ func TestSelectStatementWithWhere(t *testing.T) {
 	if sql != "SELECT id,name,email FROM Users WHERE id>=10 AND id<20;" {
 		t.Fatalf("Explicit AND concatenation:\n%s", sql)
 	}
+
+	// Test OR concatenation
+	node = Select("Users", []string{"id", "name", "email"})
+	node.Where(Gte("id", "10").Or(Lt("id", "5")))
+	sql = node.Compile()
+	if sql != "SELECT id,name,email FROM Users WHERE id>=10 OR id<5;" {
+		t.Fatalf("OR concatenation:\n%s", sql)
+	}
 }
 
 func TestInsertStatement(t *testing.T) {
