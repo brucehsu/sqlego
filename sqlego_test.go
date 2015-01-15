@@ -68,6 +68,14 @@ func TestSelectStatementWithWhere(t *testing.T) {
 	if sql != "SELECT id,name,email FROM Users WHERE id BETWEEN 10 AND 20;" {
 		t.Fatalf("Between:\n%s", sql)
 	}
+
+	// Test complex predicates composition
+	node = Select("Users", []string{"id", "name", "email"})
+	node.Where(Gte("id", "1"), ExplicitPredicates(Gte("id", "10"), Lt("id", "20")).Or(Lt("id", "5")), Between("id", "10", "20"))
+	sql = node.Compile()
+	if sql != "SELECT id,name,email FROM Users WHERE id>=1 AND  ( id>=10 AND id<20 )  OR id<5 AND id BETWEEN 10 AND 20;" {
+		t.Fatalf("Complex predicates composition:\n%s", sql)
+	}
 }
 
 func TestInsertStatement(t *testing.T) {
