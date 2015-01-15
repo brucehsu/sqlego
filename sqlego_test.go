@@ -28,6 +28,14 @@ func TestSelectStatementWithWhere(t *testing.T) {
 	if sql != "SELECT id,name,email FROM Users WHERE id>=10 AND id<20;" {
 		t.Fatalf("Implicit concatenation:\n%s", sql)
 	}
+
+	// Test explicit predicates
+	node = Select("Users", []string{"id", "name", "email"})
+	node.Where(ExplicitPredicates(Gte("id", "10"), Lt("id", "20")))
+	sql = node.Compile()
+	if sql != "SELECT id,name,email FROM Users WHERE  ( id>=10 AND id<20 ) ;" {
+		t.Fatalf("Explicit predicates:\n%s", sql)
+	}
 }
 
 func TestInsertStatement(t *testing.T) {
