@@ -60,6 +60,14 @@ func TestSelectStatementWithWhere(t *testing.T) {
 	if sql != "SELECT id,name,email FROM Users WHERE  ( id>=10 AND id<20 )  OR id<5;" {
 		t.Fatalf("Explicit predicates ambiguity:\n%s", sql)
 	}
+
+	// Test BETWEEN
+	node = Select("Users", []string{"id", "name", "email"})
+	node.Where(Between("id", "10", "20"))
+	sql = node.Compile()
+	if sql != "SELECT id,name,email FROM Users WHERE id BETWEEN 10 AND 20;" {
+		t.Fatalf("Between:\n%s", sql)
+	}
 }
 
 func TestInsertStatement(t *testing.T) {
