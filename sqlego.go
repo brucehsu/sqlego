@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"reflect"
+	"regexp"
 	"strings"
 )
 
@@ -160,7 +161,8 @@ func (node *Statement) Compile() string {
 	buffer.WriteString(compileWhere(node.children))
 
 	buffer.WriteString(";")
-	return buffer.String()
+	r := regexp.MustCompile(" {2,}")
+	return r.ReplaceAllString(buffer.String(), " ")
 }
 
 func compileWhere(children []interface{}) string {

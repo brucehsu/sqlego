@@ -33,7 +33,7 @@ func TestSelectStatementWithWhere(t *testing.T) {
 	node = Select("Users", []string{"id", "name", "email"})
 	node.Where(ExplicitPredicates(Gte("id", "10"), Lt("id", "20")))
 	sql = node.Compile()
-	if sql != "SELECT id,name,email FROM Users WHERE  ( id>=10 AND id<20 ) ;" {
+	if sql != "SELECT id,name,email FROM Users WHERE ( id>=10 AND id<20 ) ;" {
 		t.Fatalf("Explicit predicates:\n%s", sql)
 	}
 
@@ -57,7 +57,7 @@ func TestSelectStatementWithWhere(t *testing.T) {
 	node = Select("Users", []string{"id", "name", "email"})
 	node.Where(ExplicitPredicates(Gte("id", "10"), Lt("id", "20")).Or(Lt("id", "5")))
 	sql = node.Compile()
-	if sql != "SELECT id,name,email FROM Users WHERE  ( id>=10 AND id<20 )  OR id<5;" {
+	if sql != "SELECT id,name,email FROM Users WHERE ( id>=10 AND id<20 ) OR id<5;" {
 		t.Fatalf("Explicit predicates ambiguity:\n%s", sql)
 	}
 
@@ -73,7 +73,7 @@ func TestSelectStatementWithWhere(t *testing.T) {
 	node = Select("Users", []string{"id", "name", "email"})
 	node.Where(Gte("id", "1"), ExplicitPredicates(Gte("id", "10"), Lt("id", "20")).Or(Lt("id", "5")), Between("id", "10", "20"))
 	sql = node.Compile()
-	if sql != "SELECT id,name,email FROM Users WHERE id>=1 AND  ( id>=10 AND id<20 )  OR id<5 AND id BETWEEN 10 AND 20;" {
+	if sql != "SELECT id,name,email FROM Users WHERE id>=1 AND ( id>=10 AND id<20 ) OR id<5 AND id BETWEEN 10 AND 20;" {
 		t.Fatalf("Complex predicates composition:\n%s", sql)
 	}
 }
