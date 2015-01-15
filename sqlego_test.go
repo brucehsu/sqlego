@@ -13,6 +13,14 @@ func TestSelectStatement(t *testing.T) {
 	}
 }
 
+func TestInsertStatement(t *testing.T) {
+	node := Insert("Users", map[string]string{"name": "Bruce"})
+	sql := node.Compile()
+	if sql != "INSERT INTO Users (name) VALUES (Bruce);" {
+		t.Fatal(sql)
+	}
+}
+
 func TestUpdateStatement(t *testing.T) {
 	node := Update("Users", map[string]string{"id": "2", "name": "Bruce", "email": "bruce@example.com"})
 	sql := node.Compile()
