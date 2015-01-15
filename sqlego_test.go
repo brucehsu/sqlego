@@ -28,3 +28,11 @@ func TestUpdateStatement(t *testing.T) {
 		t.Fatal(sql)
 	}
 }
+
+func TestDeleteStatement(t *testing.T) {
+	node := Delete("Users")
+	sql := node.Compile()
+	if sql != "DELETE FROM Users;" {
+		t.Fatal(sql)
+	}
+}
